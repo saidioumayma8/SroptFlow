@@ -1,29 +1,56 @@
 package DAO;
 
-import Model.User;
-import Utils.DatabaseConnection;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
-import java.sql.*;
+import static Utils.DatabaseConnection.getConnection;
 
 public class UserDAO {
-    private Connection connection;
 
-    public UserDAO() {
-        connection = DatabaseConnection.getConnection();
-    }
-
-    public User validateUser(String nom, String password) { // Change 'email' to 'nom'
+    public static int Login(String nom, String password) {
         try {
-            String sql = "SELECT * FROM users WHERE nom = ? AND password = ?";
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setString(1, nom); // Now using 'nom' correctly
-            stmt.setString(2, password);
+            Connection conn = getConnection();
+            String sql = "SELECT * FROM Users WHERE nom = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, nom);
+
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                return new User(rs.getInt("id"), rs.getString("nom"), rs.getString("name"));
+                String pass = rs.getString("password");
+                if (pass.equals(password)) {
+                    return rs.getInt("id");  // Return the user's ID if credentials match
+                }
             }
-        } catch (SQLException e) {
+            rs.close();
+            stmt.close();
+            conn.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+        return 0;
+    }
+
+
+    public static String FountTheUserRole(int userId) {
+        try {
+            Connection conn = getConnection();
+            String sql = "SELECT Role FROM users WHERE Id = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, userId);
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("Role");
+            }
+
+            rs.close();
+            stmt.close();
+            conn.close();
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
