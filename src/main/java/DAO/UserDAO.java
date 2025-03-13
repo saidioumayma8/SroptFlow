@@ -111,6 +111,20 @@ public class UserDAO {
         }
     }
 
+    // Delete a user by ID
+    public boolean deleteUser(int id) {
+        String query = "DELETE FROM users WHERE id = ?";
+
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            int result = stmt.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 
 }
