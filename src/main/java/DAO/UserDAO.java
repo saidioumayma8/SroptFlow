@@ -1,12 +1,16 @@
 package DAO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import Model.User;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static Utils.DatabaseConnection.getConnection;
 
 public class UserDAO {
+
+    private static final String DB_URL = ;
 
     public static int Login(String nom, String password) {
         try {
@@ -55,5 +59,37 @@ public class UserDAO {
         }
         return null;
     }
+    public List<User> getUsersByRole(String role) {
+        List<User> users = new ArrayList<>();
+        String query = "SELECT * FROM users";
+
+        if (role != null && !role.equals("all")) {
+            query += " WHERE role = ?";
+        }
+
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            if (role != null && !role.equals("all")) {
+                stmt.setString(1, role);
+            }
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                User user = new User();
+                user.setId(rs.getInt("id"));
+                user.setName(rs.getString("name"));
+                user.setPassword(rs.getString("password"));  // Set password
+                user.setRole(rs.getString("role"));
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
+
 
 }
