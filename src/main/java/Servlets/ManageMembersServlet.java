@@ -33,6 +33,7 @@ public class ManageMembersServlet extends HttpServlet {
 
         // Pass the users to the JSP
         request.setAttribute("filteredUsers", users);
+
         request.getRequestDispatcher("/manageMembers.jsp").forward(request, response);
     }
 

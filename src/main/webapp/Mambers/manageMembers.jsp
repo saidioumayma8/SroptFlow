@@ -1,76 +1,55 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-
-<%@ include file="navbar.jsp" %> <!-- Assuming you have a navbar included -->
-
-<div class="max-w-screen-xl mx-auto p-4">
-    <!-- Title -->
-    <h2 class="text-2xl font-semibold text-gray-800 mb-6">Manage Members and Trainers</h2>
-
-    <!-- Role Filter -->
-    <div class="mb-4">
-        <label for="roleFilter" class="block text-gray-700">Filter by Role</label>
-        <select id="roleFilter" name="roleFilter" class="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-            <option value="all">All</option>
-            <option value="member">Members</option>
-            <option value="entraineur">Trainers</option>
-        </select>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Members</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body>
+<!-- Navbar -->
+<nav class="bg-blue-600 text-white p-4 shadow-md">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+        <a href="#" class="text-xl font-bold">Admin Dashboard</a>
+        <ul class="flex space-x-6">
+            <li><a href="/Mambers/manageMembers.jsp" class="hover:bg-blue-500 px-4 py-2 rounded transition duration-300">Manage Members</a></li>
+            <li><a href="../Mambers/AddMember.jsp" class="hover:bg-blue-500 px-4 py-2 rounded transition duration-300">Add Member</a></li>
+            <li><a href="/logout.jsp" class="hover:bg-red-500 px-4 py-2 rounded transition duration-300">Logout</a></li>
+        </ul>
     </div>
+</nav>
 
-    <!-- Add Member/Trainer Form -->
-    <div class="mb-6">
-        <h3 class="text-xl font-semibold text-gray-800 mb-4">Add New Member or Trainer</h3>
-        <form action="addMemberOrTrainer.jsp" method="POST" class="space-y-4">
-            <div>
-                <label for="name" class="block text-gray-700">Name</label>
-                <input type="text" id="name" name="name" required class="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div>
-                <label for="email" class="block text-gray-700">Email</label>
-                <input type="email" id="email" name="email" required class="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div>
-                <label for="role" class="block text-gray-700">Role</label>
-                <select id="role" name="role" required class="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                    <option value="member">Member</option>
-                    <option value="entraineur">Trainer</option>
-                </select>
-            </div>
-            <div>
-                <button type="submit" class="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600">Add</button>
-            </div>
-        </form>
-    </div>
+<!-- Content -->
+<div class="container mx-auto p-8">
+    <h1 class="text-3xl font-bold mb-6">Manage Members</h1>
 
-    <!-- Members and Trainers Table -->
-    <div class="overflow-x-auto">
-        <table class="min-w-full bg-white border border-gray-300 rounded-md">
-            <thead class="bg-gray-100">
+    <!-- Member Table -->
+    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
+        <thead>
+        <tr>
+            <th class="py-2 px-4 text-left border-b">Name</th>
+            <th class="py-2 px-4 text-left border-b">Email</th>
+            <th class="py-2 px-4 text-left border-b">Role</th>
+            <th class="py-2 px-4 text-center border-b">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <c:forEach var="user" items="${filteredUsers}">
             <tr>
-                <th class="py-2 px-4 text-left">Name</th>
-                <th class="py-2 px-4 text-left">Email</th>
-                <th class="py-2 px-4 text-left">Role</th>
-                <th class="py-2 px-4 text-center">Actions</th>
+                <td class="py-2 px-4 border-b">${user.name}</td>
+                <td class="py-2 px-4 border-b">${user.email}</td>
+                <td class="py-2 px-4 border-b">${user.role}</td>
+                <td class="py-2 px-4 border-b text-center">
+                    <a href="editMemberOrTrainer.jsp?id=${user.id}" class="text-blue-500 hover:text-blue-700">Edit</a>
+                    <form action="deleteMemberOrTrainer.jsp" method="POST" class="inline-block ml-2">
+                        <input type="hidden" name="id" value="${user.id}">
+                        <button type="submit" class="text-red-500 hover:text-red-700">Delete</button>
+                    </form>
+                </td>
             </tr>
-            </thead>
-            <tbody>
-            <!-- Filtered member data based on role -->
-            <c:forEach var="user" items="${filteredUsers}">
-                <tr>
-                    <td class="py-2 px-4"><%= user.getName() %></td>
-                    <td class="py-2 px-4"><%= user.getEmail() %></td>
-                    <td class="py-2 px-4"><%= user.getRole() %></td>
-                    <td class="py-2 px-4 text-center">
-                        <a href="editMemberOrTrainer.jsp?id=<%= user.getId() %>" class="text-blue-500 hover:text-blue-700">Edit</a>
-                        <form action="deleteMemberOrTrainer.jsp" method="POST" class="inline-block ml-2">
-                            <input type="hidden" name="id" value="<%= user.getId() %>">
-                            <button type="submit" class="text-red-500 hover:text-red-700">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            </c:forEach>
-            </tbody>
-        </table>
-    </div>
+        </c:forEach>
+        </tbody>
+    </table>
 </div>
+</body>
+</html>
