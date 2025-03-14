@@ -1,6 +1,5 @@
 package DAO;
 
-import
 import Model.Membre;
 import Utils.DatabaseConnection;
 import java.sql.Connection;
@@ -10,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class MembreDAO {
+
     public boolean addMembre(Membre membre) {
         String userQuery = "INSERT INTO users (name, password, role) VALUES (?, ?, ?)";
         String membreQuery = "INSERT INTO membres (id, date_naissance, sport_pratique) VALUES (?, ?, ?)";

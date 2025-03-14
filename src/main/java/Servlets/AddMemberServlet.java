@@ -19,13 +19,13 @@ public class AddMemberServlet extends HttpServlet {
     private MembreDAO membreDAO = new MembreDAO(); // DAO Instance
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // 1️⃣ Get data from form
+        // Get data from form
         String name = request.getParameter("name");
         String password = request.getParameter("password");
         String dateNaissanceStr = request.getParameter("date_naissance");
         String sportPratique = request.getParameter("sport_pratique");
 
-        // 2️⃣ Validate data
+        // Validate data
         if (name == null || password == null || dateNaissanceStr == null || name.trim().isEmpty()) {
             response.sendRedirect("addMember.jsp?error=missing_fields");
             return;
