@@ -1,59 +1,54 @@
 package Servlets;
 
-import java.io.*;
-import javax.servlet.*;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
-import java.sql.*;
+import DAO.MembreDAO;
+import Model.Membre;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @WebServlet("/addMember")
 public class AddMemberServlet extends HttpServlet {
+    private MembreDAO membreDAO = new MembreDAO(); // DAO Instance
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Get form data
+        // 1️⃣ Get data from form
         String name = request.getParameter("name");
         String password = request.getParameter("password");
-        String role = request.getParameter("role");
+        String dateNaissanceStr = request.getParameter("date_naissance");
+        String sportPratique = request.getParameter("sport_pratique");
 
-        // Set up database connection
-        String dbURL = "jdbc:mysql://localhost:3306/your_database";
-        String dbUser = "your_username";
-        String dbPassword = "your_password";
+        // 2️⃣ Validate data
+        if (name == null || password == null || dateNaissanceStr == null || name.trim().isEmpty()) {
+            response.sendRedirect("addMember.jsp?error=missing_fields");
+            return;
+        }
 
-        Connection conn = null;
-        PreparedStatement stmt = null;
         try {
-            // Connect to the database
-            conn = DriverManager.getConnection(dbURL, dbUser, dbPassword);
+            // 3️⃣ Convert date string to Date object
+            Date dateNaissance = new SimpleDateFormat("yyyy-MM-dd").parse(dateNaissanceStr);
 
-            // Create SQL query to insert the new member
-            String sql = "INSERT INTO users (name, password, role) VALUES (?, ?, ?)";
-            stmt = conn.prepareStatement(sql);
-            stmt.setString(1, name);
-            stmt.setString(2, password);
-            stmt.setString(3, role);
+            // 4️⃣ Create Membre object
+            Membre membre = new Membre(name, password, dateNaissance, sportPratique);
 
-            // Execute the query
-            int result = stmt.executeUpdate();
+            // 5️⃣ Call DAO to insert into DB
+            boolean success = membreDAO.addMembre(membre);
 
-            // Redirect to the manage members page
-            if (result > 0) {
-                // Member added successfully, redirect to the manage members page
-                response.sendRedirect("manageMembers.jsp");
+            // 6️⃣ Redirect based on success
+            if (success) {
+                response.sendRedirect("manageMembers.jsp?success=true");
             } else {
-                // Failed to add member, redirect to the manage members page with an error message
-                request.setAttribute("errorMessage", "Failed to add member.");
-                request.getRequestDispatcher("manageMembers.jsp").forward(request, response);
+                response.sendRedirect("addMember.jsp?error=insert_failed");
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            response.sendRedirect("manageMembers.jsp");
-        } finally {
-            try {
-                if (stmt != null) stmt.close();
-                if (conn != null) conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        } catch (ParseException e) {
+            response.sendRedirect("addMember.jsp?error=invalid_date");
         }
     }
 }

@@ -95,13 +95,14 @@ public class UserDAO {
 
     // Add a new user
     public boolean addUser(User user) {
-        String query = "INSERT INTO users (name, password, role) VALUES (?, ?, ?)";
+        String query = "INSERT INTO users (name, password, date_naissance, sport_pratique, role) VALUES (?, ?, ?, ?, 'Member')";
 
         try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
              PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, user.getNom());
-            stmt.setString(2, user.getPassword());  // Store password
-            stmt.setString(3, user.getRole());
+            stmt.setString(2, user.getPassword());
+            stmt.setDate(3, Date.valueOf(user.getDateNaissance()));
+            stmt.setString(4, user.getSportPratique());
 
             int result = stmt.executeUpdate();
             return result > 0;
@@ -110,6 +111,7 @@ public class UserDAO {
             return false;
         }
     }
+
 
     // Delete a user by ID
     public boolean deleteUser(int id) {

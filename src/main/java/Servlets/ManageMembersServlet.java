@@ -12,7 +12,7 @@ import Model.User;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet("/manageMembers")
+@WebServlet("/")
 public class ManageMembersServlet extends HttpServlet {
 
     private UserDAO userDAO = new UserDAO();  // Create an instance of UserDAO
